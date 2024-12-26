@@ -6,6 +6,7 @@ import DashboardEnvironmentsPage from "../pages/Dashboard/Environments";
 import DashboardFactorsPage from "../pages/Dashboard/Factors";
 import DashboardSpeciesPage from "../pages/Dashboard/Species";
 import DashboardAttributesPage from "../pages/Dashboard/Attributes";
+import DashboardEnvironmentDetailPage from "../pages/Dashboard/Environments/Detail";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
           {
             path: "environments",
             element: <DashboardEnvironmentsPage />,
+          },
+          {
+            path: "environments/:id",
+            element: <DashboardEnvironmentDetailPage />,
           },
           {
             path: "factors",
