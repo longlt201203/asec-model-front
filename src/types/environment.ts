@@ -23,10 +23,12 @@ export enum UpdateEnvironmentImplementedFactorRequestOperationEnum {
   UPDATE,
 }
 
+export interface ImplementedFactorDto {
+  factor: string;
+  value?: number;
+}
+
 export interface UpdateEnvironmentImplementedFactorDto {
   operation: UpdateEnvironmentImplementedFactorRequestOperationEnum;
-  implementedFactor: {
-    factor: string;
-    value?: number;
-  };
+  implementedFactor: ImplementedFactorDto;
 }

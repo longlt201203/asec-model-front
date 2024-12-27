@@ -4,8 +4,16 @@ import {
   deleteEnvironment,
   getEnvironment,
   updateEnvironment,
+  updateEnvironmentImplementedFactor,
 } from "../../../../queries/environment.query";
-import { ActionIcon, Button, Group, Stack, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Group,
+  SimpleGrid,
+  Stack,
+  Title,
+} from "@mantine/core";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import EnvironmentModal from "../EnvironmentModal";
 import { useDisclosure } from "@mantine/hooks";
@@ -19,11 +27,13 @@ import {
 import { toast } from "react-toastify";
 import UpdateEnvironmentImplementedFactorModal from "./UpdateEnvironmentImplementedFactorModal";
 import { useState } from "react";
+import ImplementedFactorCard from "./ImplementedFactorCard";
 
 const emptyImplemetedFactorDto: UpdateEnvironmentImplementedFactorDto = {
   operation: UpdateEnvironmentImplementedFactorRequestOperationEnum.ADD,
   implementedFactor: {
     factor: "",
+    value: 0,
   },
 };
 
@@ -52,6 +62,13 @@ export default function DashboardEnvironmentDetailPage() {
   });
   const environment = getEnvironmentInfo.data;
 
+  const openUpdateImplementedFactorModal = (
+    dto: UpdateEnvironmentImplementedFactorDto
+  ) => {
+    setImplementedFactorDto(dto);
+    updateEnvironmentImplementedFactorModalControls.open();
+  };
+
   const updateEnvironmentMutation = useMutation({
     mutationFn: updateEnvironment,
     onSuccess: () => {
@@ -74,6 +91,20 @@ export default function DashboardEnvironmentDetailPage() {
     },
     onError: () => {
       toast.error("Failed to delete environment");
+    },
+  });
+  const updateEnvironmentImplementedFactorMutation = useMutation({
+    mutationFn: async (dto: UpdateEnvironmentImplementedFactorDto) => {
+      if (!id) return;
+      await updateEnvironmentImplementedFactor(id, dto);
+    },
+    onSuccess: () => {
+      toast.success("Factor updated successfully");
+      updateEnvironmentImplementedFactorModalControls.close();
+      getEnvironmentInfo.refetch();
+    },
+    onError: () => {
+      toast.error("Failed to update factor");
     },
   });
 
@@ -112,6 +143,33 @@ export default function DashboardEnvironmentDetailPage() {
                   Add Factor
                 </Button>
               </Group>
+              <SimpleGrid
+                cols={{ xs: 2, md: 3, lg: 4, xl: 5 }}
+                spacing={{
+                  base: "xs",
+                  md: "sm",
+                  lg: "md",
+                }}
+                verticalSpacing="xs"
+              >
+                {environment.implementedFactors.map((item) => (
+                  <ImplementedFactorCard
+                    key={item.id}
+                    implementedFactor={item}
+                    onEdit={(implementedFactor) =>
+                      openUpdateImplementedFactorModal({
+                        operation:
+                          UpdateEnvironmentImplementedFactorRequestOperationEnum.UPDATE,
+                        implementedFactor: {
+                          factor: implementedFactor.factor?.id || "",
+                          value: implementedFactor.value,
+                        },
+                      })
+                    }
+                    onDelete={(implementedFactor) => {}}
+                  />
+                ))}
+              </SimpleGrid>
             </Stack>
             <EnvironmentModal
               environment={environment}
@@ -129,6 +187,9 @@ export default function DashboardEnvironmentDetailPage() {
               dto={implemtedFactorDto}
               opened={updateEnvironmentImplementedFactorModalOpened}
               onClose={updateEnvironmentImplementedFactorModalControls.close}
+              onEnvironmentImplementedFactorUpdate={
+                updateEnvironmentImplementedFactorMutation.mutate
+              }
             />
           </>
         )
